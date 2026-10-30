@@ -29,9 +29,9 @@ node scripts/install.mjs --profile desktop --apply
 
 #### Activating theme
 
-1. Restart DeepSeek Harness after install;
-2. Open **Settings → General**;
-3. Enable **Dracula theme** — Boom! It's working ✨
+1. Restart DeepSeek Harness after install — the skin is on by default, as soon as the app is dark;
+2. Open **Settings → General** to find the **Dracula theme** switch (turn it off to fall back to the built-in palette);
+3. On a light appearance the switch asks for dark once; the row explains it when you switch back to light.
 
 #### Uninstall
 
