@@ -33,7 +33,8 @@ The plugin has two halves, both hand-written with zero dependencies:
 
 - Reads the current appearance from `ctx.theme.getTheme().active.colorScheme` and follows `ctx.on("theme/change", …)`;
 - Registers a settings row on `settings.general.item` via `ctx.slots.register` (order 12): title / description / eight color dots on the left, a primitives `Switch` on the right;
-- Writes the switch back to `localStorage`; `paint()` only runs `document.body.toggleAttribute("data-dsh-dracula", enabled && dark)`.
+- Writes the switch back to `localStorage`; `paint()` only runs `document.body.toggleAttribute("data-dsh-dracula", enabled && dark)`;
+- Follows `storage` events, so a second DSH window stays in step when the switch is flipped elsewhere.
 
 Copy is registered with `ctx.locale.register("dsh-theme-dracula", { zh, en })`.
 
@@ -67,11 +68,18 @@ This theme is the same palette mapped onto **DeepSeek Harness design tokens**: 3
 
 ```bash
 node scripts/verify.mjs
-# optional: compare against the built-in alias token table and confirm all 101 tokens are covered
-node scripts/verify.mjs --audit /tmp/dsh-probe/alias-table.txt
+# optional: prove all 101 built-in alias tokens are restated
+node scripts/verify.mjs --audit scripts/alias-tokens.txt
 ```
 
-Checks host injection lines, CSS brace balance, first-frame script parseability, client-half switch / attribute wiring under a stub environment, and palette completeness.
+Checks host injection lines, CSS brace balance, first-frame script parseability, client-half switch / attribute wiring (including another window flipping the switch) under a stub environment, and palette completeness.
+
+## Limitations
+
+- **Terminal ANSI colors**: the terminal component derives its background, foreground and cursor from the theme, but xterm's 16 ANSI slots stay at the terminal's own defaults — only the surface follows Dracula.
+- **JSON tree widget**: the tool-call JSON viewer writes its own per-element palette (`#5db0d7` / `#f28b82` / `#99c8ff`), which is element-scoped and therefore out of reach for token overrides.
+- **Floating previews**: the hover card pins a dark `#2C2C2E` surface by design, in both light and dark appearance.
+- **Appearance is respected, not overridden**: the skin only paints while the app is dark. Turning the switch on from a light appearance asks for the dark appearance once; switching back to light afterwards turns the skin off (and the settings row explains why).
 
 ## Team
 

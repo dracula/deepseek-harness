@@ -92,6 +92,7 @@ const headChildren = [];
 const storage = new Map();
 let factory = null;
 
+const windowListeners = new Map();
 globalThis.window = {
   __ModuleLoader__: {
     load: ({ id, factory: created }) => {
@@ -100,6 +101,11 @@ globalThis.window = {
       factory = created;
     },
   },
+  addEventListener: (type, listener) => {
+    if (!windowListeners.has(type)) windowListeners.set(type, new Set());
+    windowListeners.get(type).add(listener);
+  },
+  removeEventListener: (type, listener) => windowListeners.get(type)?.delete(listener),
 };
 globalThis.document = {
   body: {
@@ -214,6 +220,20 @@ check(
 );
 props.setEnabled(true);
 check("toggle on drives dark when needed", attributes.has("data-dsh-dracula"));
+
+/* another window of the same origin flips the shared localStorage flag */
+const emitStorage = (newValue) =>
+  [...(windowListeners.get("storage") ?? [])].forEach((listener) =>
+    listener({ key: "dsh-theme-dracula:enabled", newValue }),
+  );
+emitStorage("0");
+check("follows another window turning it off", !attributes.has("data-dsh-dracula"));
+check(
+  "another window's choice reaches the row",
+  props.getSnapshot().enabled === false,
+);
+emitStorage("1");
+check("follows another window turning it on", attributes.has("data-dsh-dracula"));
 
 /* ------------------------------------------------------------ optional ---- */
 

@@ -2,7 +2,7 @@
 
 #### Install from the plugin marketplace
 
-Once listed, open the **Plugins** page in DeepSeek Harness, search for **dsh-theme-dracula**, install it, and restart the app.
+Once listed, open the **Plugins** page in DeepSeek Harness, search for **Dracula**, install it, and restart the app.
 
 #### Install using Git
 
