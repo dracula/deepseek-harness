@@ -75,7 +75,7 @@ Checks host injection lines, CSS brace balance, first-frame script parseability,
 
 ## Team
 
-This theme is maintained by the following person(s) and a bunch of [awesome contributors](https://github.com/PuerJJJ/dsh-theme-dracula/graphs/contributors).
+This theme is maintained by the following person(s) and a bunch of [awesome contributors](https://github.com/dracula/deepseek-harness/graphs/contributors).
 
 | [![PuerJJJ](https://github.com/PuerJJJ.png?size=100)](https://github.com/PuerJJJ) |
 | --------------------------------------------------------------------------------- |

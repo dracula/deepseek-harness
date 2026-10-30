@@ -9,8 +9,8 @@ Once listed, open the **Plugins** page in DeepSeek Harness, search for **dsh-the
 If you are a Git user, you can install the theme and keep it up to date by cloning the repo:
 
 ```bash
-git clone https://github.com/PuerJJJ/dsh-theme-dracula.git
-cd dsh-theme-dracula
+git clone https://github.com/dracula/deepseek-harness.git
+cd deepseek-harness
 node scripts/install.mjs --profile desktop           # dry-run: preview changes
 node scripts/install.mjs --profile desktop --apply   # symlink and register the bundle
 ```
@@ -21,7 +21,7 @@ The script only creates a symlink under `$DSH_HOME/profiles/<profile>/node_modul
 
 #### Install manually
 
-Download using the [GitHub `.zip` download](https://github.com/PuerJJJ/dsh-theme-dracula/archive/main.zip) option and unzip it. Then run the same install commands from the extracted folder:
+Download using the [GitHub `.zip` download](https://github.com/dracula/deepseek-harness/archive/main.zip) option and unzip it. Then run the same install commands from the extracted folder:
 
 ```bash
 node scripts/install.mjs --profile desktop --apply
