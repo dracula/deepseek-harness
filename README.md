@@ -1,108 +1,97 @@
 # Dracula for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
 
-> A dark theme for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) — sidebar, chat, composer, menus and settings in Dracula colors.
+> A dark theme for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) — sidebar, chat, composer, menus, and settings in Dracula colors.
 
-![Screenshot](./docs/main.png)
+![Screenshot](./screenshot/01-main.png)
 
-把 [Dracula](https://draculatheme.com/) 配色搬进 DeepSeek Harness：整站（侧栏、对话区、输入框、菜单、设置页、代码高亮）换成 `#20212B` / `#282A36` / `#44475A` 这套配色，取值对齐 [官方 DeepSeek 移植版](https://draculatheme.com/deepseek)。
+Brings the [Dracula](https://draculatheme.com/) palette into DeepSeek Harness: the whole UI (sidebar, chat, composer, menus, settings, and code highlighting) is restated with `#20212B` / `#282A36` / `#44475A`, aligned with the [official DeepSeek port](https://draculatheme.com/deepseek).
 
-![Settings row](./docs/settings.png)
+![Settings row](./screenshot/02-settings.png)
 
-## 特点 / Highlights
+## Install
 
-- **整站换肤**：101 个 `--dsw-alias-*`、11 个 `--dsw-specific-*`（侧栏 / 输入框 / 气泡 / 菜单这类模块专属层）、11 个 `--shiki-token-*`（代码高亮）、两条 think 渐变与选区色，全部按 Dracula 取值重述。
-- **首帧就是 Dracula**：宿主半随 HTML 注入 `<style>` 与一段首帧脚本，页面加载时不会先闪一下内置深色。
-- **不抢浅色**：只在应用处于深色外观时生效；用户切到「浅色」，主题自动让位。
-- **零依赖**：宿主半只用 Node 内建模块，不引入任何 `@deepseek-ai/*` 包，不需要构建。
+All instructions can be found at [draculatheme.com/deepseek-harness](https://draculatheme.com/deepseek-harness).
 
-## 安装 / Install
+## Highlights
 
-### 插件市场（收录后）
+- **Full UI reskin**: 101 `--dsw-alias-*` tokens, 11 `--dsw-specific-*` tokens (sidebar / composer / bubbles / menus), 11 `--shiki-token-*` tokens (syntax highlighting), plus the think gradients and selection color — all restated with Dracula values.
+- **Dracula on first paint**: the host half injects a `<style>` and a first-frame script with the HTML, so the built-in dark theme never flashes.
+- **Leaves light mode alone**: only applies while the app is in a dark appearance; switching to light yields automatically.
+- **Zero dependencies**: the host half uses Node built-ins only — no `@deepseek-ai/*` packages, no build step.
 
-在 DeepSeek Harness 的「插件」页搜索 **dsh-theme-dracula**，安装后重启应用。
+## How it works
 
-### 本地安装
+The plugin has two halves, both hand-written with zero dependencies:
 
-```bash
-git clone https://github.com/PuerJJJ/dsh-theme-dracula
-cd dsh-theme-dracula
-node scripts/install.mjs --profile desktop           # dry-run：先看清要改什么
-node scripts/install.mjs --profile desktop --apply   # 建软链并登记到 dsh.profile.bundles
-```
+**Host half `lib/index.js`** — subscribes to `webserver/index-inject` and injects a `<style>` (into `<head>`) and an inline `<script>` (at the end of `<body>`) on every page render:
 
-重启 DeepSeek Harness，然后打开 **设置 → 通用设置**，找到「Dracula 主题」并打开开关。
+- Styles live under `:root:root body[data-dsh-dracula]{…}`. The doubled pseudo-class raises specificity to `(0,3,1)`, which beats the design-platform rules appended at runtime (`body`, `body[data-ds-dark-theme]`, `html[data-platform=darwin] body`) without relying on injection order.
+- Covers four layers: `--dsw-alias-*`, `--dsw-specific-*` (without this layer the sidebar does not follow), `--shiki-token-*` (DSH highlighting uses `theme: "css-variables"`, so changing the variables is enough), plus the think/select gradients and `--dsh-boot-bg`.
+- The first-frame script runs before any client bundle: reads the `localStorage` switch → exposes `globalThis.__DSH_DRACULA__` for the client half → toggles `data-dsh-dracula` on `<body>` from `body[data-ds-dark-theme]` → a `MutationObserver` follows later appearance changes.
 
-脚本只在 `$DSH_HOME/profiles/<profile>/node_modules/` 下建一个软链，并把包名追加进该 profile 的 `dsh.profile.bundles`；写入前会备份 `package.json.bak-dracula`，不改 `dependencies`、不动 `pnpm-lock.yaml`（bundle 只需能按包名解析，与内置 bundle 的加载方式一致）。
+**Client half `lib/client.js`** — a `window.__ModuleLoader__.load({ id: "dsh-theme-dracula", … })` bundle with `inject = ["theme", "slots", "locale"]`:
 
-### 卸载 / Uninstall
+- Reads the current appearance from `ctx.theme.getTheme().active.colorScheme` and follows `ctx.on("theme/change", …)`;
+- Registers a settings row on `settings.general.item` via `ctx.slots.register` (order 12): title / description / eight color dots on the left, a primitives `Switch` on the right;
+- Writes the switch back to `localStorage`; `paint()` only runs `document.body.toggleAttribute("data-dsh-dracula", enabled && dark)`.
 
-```bash
-node scripts/install.mjs --profile desktop --uninstall --apply
-```
+Copy is registered with `ctx.locale.register("dsh-theme-dracula", { zh, en })`.
 
-或手动删除 `node_modules/dsh-theme-dracula` 软链、把包名从 `dsh.profile.bundles` 移除，然后重启。
+> This is not registered as a third-party `ui-theme`: that API only persists `light | dark | system`, and any font or appearance change would push a third-party id back to a built-in value and silently drop the theme. A CSS skin layer that follows appearance state is more stable.
 
-## 工作原理 / How it works
+## Palette
 
-插件分两半，都是手写零依赖实现：
+| Role                           | Tokens                                                                                     | Value                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| Page background                | `--dsw-alias-bg-base`                                                                      | `#20212b`                                                 |
+| Sidebar / code blocks          | `--dsw-specific-sidebar-fill`, `--dsw-alias-bg-layer-1`, `--dsw-alias-markdown-code-block` | `#282a36`                                                 |
+| Cards / composer / hover       | `--dsw-alias-bg-layer-2`, `--dsw-specific-input-major`                                     | `#2e3040`                                                 |
+| Selection / raised             | `--dsw-alias-bg-layer-3`, `--dsw-specific-sidebar-nav-item-active`                         | `#44475a`                                                 |
+| Primary text                   | `--dsw-alias-label-primary`                                                                | `#f8f8f2`                                                 |
+| Secondary / tertiary / caption | `--dsw-alias-label-secondary`, `-tertiary`, `-caption`                                     | `#bbc4de` / `#9ba9d0` / `#6272a4`                         |
+| Accent / primary button        | `--dsw-alias-brand-primary`, `--dsw-alias-button-primary-fill`                             | `#bd93f9`                                                 |
+| Links / focus                  | `--dsw-alias-link`, `--dsw-alias-state-business-primary`                                   | `#8be9fd`                                                 |
+| Success / warning / error      | `--dsw-alias-state-success-primary` and related                                            | `#50fa7b` / `#ffb86c` / `#ff5555`                         |
+| Syntax highlighting            | `--shiki-token-keyword`, `-string`, `-comment`, `-function`, `-parameter`                  | `#ff79c6` / `#f1fa8c` / `#6272a4` / `#50fa7b` / `#8be9fd` |
+| Text selection                 | `::selection`                                                                              | `#bd93f9` at 42% over the background                      |
 
-**宿主半 `lib/index.js`** — 订阅 `webserver/index-inject`，向每次页面渲染注入一个 `<style>`（到 `<head>`）和一段内联 `<script>`（到 `<body>` 末尾）：
+> Selection does not use Dracula's selection color `#44475a` directly: inline code uses the same background, so selecting a command would blend into the fill. A 42% purple overlay keeps the selection readable on the page, cards, and code blocks.
 
-- 样式写在 `:root:root body[data-dsh-dracula]{…}` 下。重复伪类把特异度提到 (0,3,1)，压过设计平台运行时 append 的 `body`、`body[data-ds-dark-theme]`、`html[data-platform=darwin] body` 规则，不依赖注入顺序。
-- 覆盖四层变量：`--dsw-alias-*`、`--dsw-specific-*`（不改这层侧栏不跟着变色）、`--shiki-token-*`（DSH 的代码高亮走 `theme: "css-variables"`，改变量即可）、以及 think/select 渐变与 `--dsh-boot-bg`。
-- 首帧脚本在任何客户端 bundle 之前执行：读 `localStorage` 开关 → 挂到 `globalThis.__DSH_DRACULA__` 给客户端半读 → 按 `body[data-ds-dark-theme]` 决定是否给 `<body>` 加 `data-dsh-dracula` → `MutationObserver` 跟随后续外观切换。
+## Relation to the official port
 
-**客户端半 `lib/client.js`** — 一个 `window.__ModuleLoader__.load({ id: "dsh-theme-dracula", … })` bundle，`inject = ["theme", "slots", "locale"]`：
+[draculatheme.com/deepseek](https://draculatheme.com/deepseek) is a Stylus userstyle for **chat.deepseek.com**. It works by overriding `--dsw-static-*` and Prism class names, and only applies on that domain in the browser.
 
-- 从 `ctx.theme.getTheme().active.colorScheme` 取当前外观，`ctx.on("theme/change", …)` 跟随变化；
-- 用 `ctx.slots.register` 往 `settings.general.item` 槽位注册一行设置（order 12），左侧标题 / 描述 / 八色圆点，右侧是 primitives 的 `Switch`；
-- 开关写回 `localStorage`，`paint()` 只做 `document.body.toggleAttribute("data-dsh-dracula", enabled && dark)`。
+This theme is the same palette mapped onto **DeepSeek Harness design tokens**: 32 of DSH's dark aliases are literal values, sidebar / composer / menus use a separate `--dsw-specific-*` layer, and highlighting uses `--shiki-token-*`. Porting only the static layer would leave large areas unthemed, so this version restates all three layers.
 
-文案走 `ctx.locale.register("dsh-theme-dracula", { zh, en })`。
-
-> 没有注册成 ui-theme 的第三方主题：ui-theme 只持久化 `light | dark | system`，任何一次字体或外观设置变更都会把第三方 id 顶回内置值，主题会静默消失。CSS 皮肤层跟随外观状态，行为更稳。
-
-## 调色板 / Palette
-
-| 用途 | 变量 | 取值 |
-| --- | --- | --- |
-| 页面底色 | `--dsw-alias-bg-base` | `#20212b` |
-| 侧栏 / 代码块 | `--dsw-specific-sidebar-fill`、`--dsw-alias-bg-layer-1`、`--dsw-alias-markdown-code-block` | `#282a36` |
-| 卡片 / 输入框 / 悬浮 | `--dsw-alias-bg-layer-2`、`--dsw-specific-input-major` | `#2e3040` |
-| 选中 / 抬升 | `--dsw-alias-bg-layer-3`、`--dsw-specific-sidebar-nav-item-active` | `#44475a` |
-| 主文字 | `--dsw-alias-label-primary` | `#f8f8f2` |
-| 次级 / 三级 / 注释 | `--dsw-alias-label-secondary`、`-tertiary`、`-caption` | `#bbc4de` / `#9ba9d0` / `#6272a4` |
-| 强调 / 主按钮 | `--dsw-alias-brand-primary`、`--dsw-alias-button-primary-fill` | `#bd93f9` |
-| 链接 / 焦点 | `--dsw-alias-link`、`--dsw-alias-state-business-primary` | `#8be9fd` |
-| 成功 / 警告 / 错误 | `--dsw-alias-state-success-primary` 等 | `#50fa7b` / `#ffb86c` / `#ff5555` |
-| 代码高亮 | `--shiki-token-keyword`、`-string`、`-comment`、`-function`、`-parameter` | `#ff79c6` / `#f1fa8c` / `#6272a4` / `#50fa7b` / `#8be9fd` |
-| 文字选区 | `::selection` | `#bd93f9` 42% 叠底 |
-
-> 选区没有直接用 Dracula 的选中色 `#44475a`：行内代码的背景也是这个值，选中命令时高亮会和底色糊在一起。改成 42% 的紫色叠底后，在页面、卡片、代码块上都还能看清选了什么。
-
-## 和 draculatheme.com/deepseek 的关系 / Relation to the official port
-
-[draculatheme.com/deepseek](https://draculatheme.com/deepseek) 是给 **chat.deepseek.com** 网页版的 Stylus 用户样式，靠覆盖 `--dsw-static-*` 与 Prism 类名生效，只在浏览器里那个域名下有用。这里是同一套配色在 **DeepSeek Harness 设计 token** 上的移植：DSH 的 dark alias 里有 32 个是字面值，侧栏 / 输入框 / 菜单走独立的 `--dsw-specific-*` 层，代码高亮走 `--shiki-token-*`，只搬 static 会大面积漏色，所以这版把三层都重述了。
-
-## 自检 / Self-check
+## Self-check
 
 ```bash
 node scripts/verify.mjs
-# 可选：对比内置 alias token 表，确认 101 个 token 一个不漏
+# optional: compare against the built-in alias token table and confirm all 101 tokens are covered
 node scripts/verify.mjs --audit /tmp/dsh-probe/alias-table.txt
 ```
 
-校验内容：宿主注入行、CSS 大括号配平、首帧脚本可解析、客户端半在 stub 环境下的开关 / 属性联动、调色板完整性。
+Checks host injection lines, CSS brace balance, first-frame script parseability, client-half switch / attribute wiring under a stub environment, and palette completeness.
 
 ## Team
 
-Maintained by [PuerJJJ](https://github.com/PuerJJJ).
+This theme is maintained by the following person(s) and a bunch of [awesome contributors](https://github.com/PuerJJJ/dsh-theme-dracula/graphs/contributors).
+
+| [![PuerJJJ](https://github.com/PuerJJJ.png?size=100)](https://github.com/PuerJJJ) |
+| --------------------------------------------------------------------------------- |
+| [PuerJJJ](https://github.com/PuerJJJ)                                             |
 
 ## Community
 
-- [X (Twitter)](https://x.com/draculatheme) and [Instagram](https://instagram.com/draculatheme)
-- [Discord](https://draculatheme.com/discord-invite)
-- [GitHub Discussions](https://github.com/dracula/dracula-theme/discussions)
+Join thousands of vampires using Dracula Theme around the world 🦇
+
+- [X (Twitter)](https://x.com/draculatheme) and [Instagram](https://www.instagram.com/draculatheme) - Follow for tips, news, and fun.
+- [Discord](https://draculatheme.com/discord-invite) - Hang out and chat with the rest of the clan.
+- [GitHub Discussions](https://github.com/dracula/dracula-theme/discussions) - Ask questions and discuss issues.
+
+## Dracula PRO
+
+[![Dracula PRO](./.github/dracula-pro.png)](https://draculatheme.com/pro)
 
 ## License
 
