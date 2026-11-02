@@ -2,7 +2,11 @@
 
 #### Install from the plugin marketplace
 
-Once listed, open the **Plugins** page in DeepSeek Harness, search for **Dracula**, install it, and restart the app.
+Open the **Themes** tab in [dsh-market](https://github.com/dsh-market/dsh-market) inside DeepSeek Harness. Search for **dracula** or **deepseek-harness**, then choose the entry with repository **dracula/deepseek-harness** and install it. Restart the app if prompted.
+
+The catalog name is **deepseek-harness**, the owner is **dracula**, and the package name is **dsh-theme-dracula**. These all refer to this theme.
+
+在 dsh-market 的**主题**页搜索 **dracula** 或 **deepseek-harness**，确认来源仓库为 **dracula/deepseek-harness** 后安装；如提示需要重启，请重启应用。
 
 #### Install using Git
 
@@ -15,7 +19,7 @@ node scripts/install.mjs --profile desktop           # dry-run: preview changes
 node scripts/install.mjs --profile desktop --apply   # symlink and register the bundle
 ```
 
-Restart DeepSeek Harness, then open **Settings → General**, find **Dracula theme**, and turn it on.
+Restart DeepSeek Harness. The theme is enabled by default while the app is in dark appearance; its switch is under **Settings → General → Dracula theme**.
 
 The script only creates a symlink under `$DSH_HOME/profiles/<profile>/node_modules/` and appends the package name to that profile's `dsh.profile.bundles`. Before writing, it backs up `package.json.bak-dracula`. It does not change `dependencies` or touch `pnpm-lock.yaml` — bundles only need to resolve by package name, the same way built-in bundles load.
 

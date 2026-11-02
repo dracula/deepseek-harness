@@ -2,15 +2,21 @@
 
 > A dark theme for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) — sidebar, chat, composer, menus, and settings in Dracula colors.
 
+Developed and maintained by [PuerJJJ](https://github.com/PuerJJJ), and hosted in the [Dracula organization](https://github.com/dracula). This is a community-developed theme, not an official DeepSeek plugin.
+
+由 [PuerJJJ](https://github.com/PuerJJJ) 开发维护，收录于 [Dracula 组织](https://github.com/dracula)。社区开发，非 DeepSeek 官方插件。
+
 ![Screenshot](./screenshot/01-main.png)
 
-Brings the [Dracula](https://draculatheme.com/) palette into DeepSeek Harness: the whole UI (sidebar, chat, composer, menus, settings, and code highlighting) is restated with `#20212B` / `#282A36` / `#44475A`, aligned with the [official DeepSeek port](https://draculatheme.com/deepseek).
+Brings the [Dracula](https://draculatheme.com/) palette into DeepSeek Harness: the whole UI (sidebar, chat, composer, menus, settings, and code highlighting) is restated with `#20212B` / `#282A36` / `#44475A`, aligned with the [Dracula theme for the DeepSeek website](https://draculatheme.com/deepseek).
 
 ![Settings row](./screenshot/02-settings.png)
 
 ## Install
 
-All instructions can be found at [draculatheme.com/deepseek-harness](https://draculatheme.com/deepseek-harness).
+Open the **Themes** tab in [dsh-market](https://github.com/dsh-market/dsh-market), search for **dracula** or **deepseek-harness**, and choose the entry from **dracula/deepseek-harness**.
+
+See the [installation guide](./INSTALL.md) for marketplace, Git, and manual installation instructions, also available at [draculatheme.com/deepseek-harness](https://draculatheme.com/deepseek-harness).
 
 ## Highlights
 
@@ -58,7 +64,7 @@ Copy is registered with `ctx.locale.register("dsh-theme-dracula", { zh, en })`.
 
 > Selection does not use Dracula's selection color `#44475a` directly: inline code uses the same background, so selecting a command would blend into the fill. A 42% purple overlay keeps the selection readable on the page, cards, and code blocks.
 
-## Relation to the official port
+## Relation to the Dracula theme for the DeepSeek website
 
 [draculatheme.com/deepseek](https://draculatheme.com/deepseek) is a Stylus userstyle for **chat.deepseek.com**. It works by overriding `--dsw-static-*` and Prism class names, and only applies on that domain in the browser.
 
